@@ -1,0 +1,93 @@
+// Customer archetypes. Add a new kind of customer by appending an entry.
+// prefs: weights per beer style / tag ("cheap", "local", ...) or product id
+// thirst: number of rounds [min,max]; budget per person [min,max] in €
+// priceSens: how much a price above the "fair" price hurts; qualitySens: how much quality matters
+
+export const CUSTOMER_TYPES = [
+  {
+    id: 'etudiant', name: 'Étudiant', plural: 'Étudiants', level: 1, minRep: 0, weight: 1.2,
+    group: [2, 4], budget: [11, 20], patience: 1.0, priceSens: 1.5, qualitySens: 0.2, tip: 0.5,
+    thirst: [1, 3], drinkSpeed: 1.25, foodChance: 0.35, softChance: 0.06, counterChance: 0.15,
+    prefs: { cheap: 2.2, lager: 1.3, blanche: 1.2, aromatisee: 2.0, ipa: 0.7, stout: 0.6, trappiste: 0.2 },
+    foodPrefs: { cacahuetes: 2.5, saucisson: 1.2, olives: 0.6, planche: 0.4, croque: 1.4 },
+    look: { topStyle: ['hoodie', 'tshirt'], accessory: [['backpack', 0.45]], hat: [['beanie', 0.2], ['cap', 0.2]] },
+    regularChance: 0.05, desc: 'Petit budget, grosse soif. Adore les bières pas chères et le baby-foot.',
+  },
+  {
+    id: 'habitue', name: 'Habitué du quartier', plural: 'Habitués', level: 1, minRep: 0, weight: 0.9,
+    group: [1, 2], budget: [12, 24], patience: 1.45, priceSens: 1.0, qualitySens: 0.4, tip: 0.8,
+    thirst: [2, 4], drinkSpeed: 0.95, foodChance: 0.3, softChance: 0.03, counterChance: 0.85,
+    prefs: { lager: 1.6, ambree: 1.4, classic: 1.3, cheap: 1.1, ipa: 0.4 },
+    foodPrefs: { saucisson: 2.5, cacahuetes: 1, olives: 0.8, cafe: 1.6 },
+    look: { age: 'old', topStyle: ['sweater', 'shirt'], hat: [['beret', 0.35], ['flatcap', 0.3]], mustache: 0.4 },
+    regularChance: 0.32, desc: 'Vient boire « sa » pinte au comptoir. Fidèle si on le traite bien.',
+  },
+  {
+    id: 'amis', name: 'Groupe d’amis', plural: 'Groupes d’amis', level: 1, minRep: 6, weight: 1.0,
+    group: [3, 5], budget: [17, 32], patience: 1.0, priceSens: 1.0, qualitySens: 0.5, tip: 0.9,
+    thirst: [1, 3], drinkSpeed: 1.05, foodChance: 0.6, softChance: 0.08, counterChance: 0,
+    prefs: { lager: 1.2, blanche: 1.2, belge: 1.1, ipa: 1.0, pils: 1.1 },
+    foodPrefs: { planche: 2.5, saucisson: 1.8, cacahuetes: 1, olives: 1, croque: 1 },
+    look: {}, regularChance: 0.06, desc: 'Ça commande par tournées. Une planche, et ça repart.',
+  },
+  {
+    id: 'couple', name: 'Couple', plural: 'Couples', level: 2, minRep: 14, weight: 0.7,
+    group: [2, 2], budget: [20, 36], patience: 1.0, priceSens: 0.85, qualitySens: 0.7, tip: 1.0,
+    thirst: [1, 2], drinkSpeed: 0.9, foodChance: 0.5, softChance: 0.15, counterChance: 0.25,
+    prefs: { blanche: 1.5, abbaye: 1.4, belge: 1.2, soft: 1.2, pils: 1.1 },
+    foodPrefs: { planche: 2.2, olives: 1.6, saucisson: 0.8, cafe: 2.2 },
+    look: {}, regularChance: 0.08, desc: 'Sensibles à la décoration et à l’ambiance. Aiment les planches.',
+  },
+  {
+    id: 'sportif', name: 'Supporter', plural: 'Supporters', level: 2, minRep: 12, weight: 0.6,
+    group: [2, 5], budget: [16, 28], patience: 0.85, priceSens: 1.1, qualitySens: 0.3, tip: 0.8,
+    thirst: [2, 4], drinkSpeed: 1.3, foodChance: 0.45, softChance: 0.03, counterChance: 0.1,
+    prefs: { lager: 1.8, pils: 1.6, cheap: 1.3, classic: 1.2 },
+    foodPrefs: { cacahuetes: 2, saucisson: 1.5, croque: 1.5 },
+    look: { topStyle: ['jersey'], accessory: [['scarf', 0.6]], hat: [['cap', 0.25]] },
+    regularChance: 0.06, desc: 'Viennent en bande, boivent vite. Adorent les écrans et les soirées match.',
+  },
+  {
+    id: 'touriste', name: 'Touriste', plural: 'Touristes', level: 2, minRep: 22, weight: 0.55,
+    group: [2, 3], budget: [22, 40], patience: 1.1, priceSens: 0.5, qualitySens: 0.6, tip: 1.5,
+    thirst: [1, 2], drinkSpeed: 0.9, foodChance: 0.55, softChance: 0.05, counterChance: 0.2,
+    prefs: { local: 3.2, belge: 1.6, abbaye: 1.4, stout: 1.4, trappiste: 1.5 },
+    foodPrefs: { saucisson: 2.5, planche: 2, croque: 1.5 },
+    look: { topStyle: ['hawaii'], accessory: [['camera', 0.7]], hat: [['bucket', 0.5]] },
+    regularChance: 0.01, desc: 'Paient sans compter, pourboires généreux. Raffolent des bières locales et du saucisson.',
+  },
+  {
+    id: 'amateur', name: 'Amateur de bière', plural: 'Amateurs de bière', level: 3, minRep: 30, weight: 0.6,
+    group: [1, 2], budget: [22, 45], patience: 1.0, priceSens: 0.6, qualitySens: 1.6, tip: 1.2,
+    thirst: [2, 4], drinkSpeed: 0.85, foodChance: 0.25, softChance: 0, counterChance: 0.6,
+    prefs: { stout: 2.2, ipa: 2.4, belge: 2.2, abbaye: 1.7, trappiste: 2.8, local: 2.2, weiss: 1.6, cheap: 0.05, lager: 0.35, aromatisee: 0.1 },
+    foodPrefs: { planche: 1.5, olives: 1, saucisson: 1, cafe: 1 },
+    look: { beard: 0.6, glasses: 0.5, topStyle: ['shirt'] },
+    regularChance: 0.12, desc: 'Connaît chaque houblon par son prénom. Paie cher pour de la qualité.',
+  },
+  {
+    id: 'gros_buveur', name: 'Gros consommateur', plural: 'Gros consommateurs', level: 3, minRep: 25, weight: 0.45,
+    group: [1, 3], budget: [35, 70], patience: 0.95, priceSens: 0.9, qualitySens: 0.4, tip: 1.0,
+    thirst: [3, 6], drinkSpeed: 1.6, foodChance: 0.4, softChance: 0, counterChance: 0.5,
+    prefs: { lager: 1.5, belge: 1.4, classic: 1.2, cheap: 1.2 },
+    foodPrefs: { cacahuetes: 2, saucisson: 2, croque: 1.5 },
+    look: { build: 'big' }, regularChance: 0.15, desc: 'Enchaîne les pintes. Rentable… tant que le fût suit.',
+  },
+  {
+    id: 'exigeant', name: 'Client exigeant', plural: 'Clients exigeants', level: 3, minRep: 42, weight: 0.4,
+    group: [1, 2], budget: [30, 55], patience: 0.62, priceSens: 0.7, qualitySens: 1.3, tip: 1.9, cleanSens: 2,
+    thirst: [1, 2], drinkSpeed: 0.85, foodChance: 0.45, softChance: 0.1, counterChance: 0.2,
+    prefs: { abbaye: 1.8, trappiste: 2, belge: 1.6, premium: 1.6, cheap: 0.02 },
+    foodPrefs: { planche: 2, olives: 1.4, cafe: 1.5 },
+    look: { topStyle: ['suit'], accessory: [['tie', 0.8]], glasses: 0.5 },
+    regularChance: 0.05, desc: 'Peu patient, déteste la saleté. Mais quel pourboire quand tout est parfait !',
+  },
+  {
+    id: 'gourmand', name: 'Gourmand', plural: 'Gourmands', level: 3, minRep: 26, weight: 0.45, needsFood: 2,
+    group: [1, 2], budget: [20, 36], patience: 1.1, priceSens: 0.9, qualitySens: 0.5, tip: 1.0,
+    thirst: [1, 2], drinkSpeed: 0.9, foodChance: 1, foodCount: 2, softChance: 0.45, counterChance: 0.3,
+    prefs: { soft: 1.2, blanche: 1.2, ambree: 1.1 },
+    foodPrefs: { planche: 2.5, croque: 2.5, saucisson: 1.2, olives: 1 },
+    look: { build: 'big' }, regularChance: 0.08, desc: 'Vient surtout pour manger. Une carte de grignotage bien remplie le fait venir.',
+  },
+];

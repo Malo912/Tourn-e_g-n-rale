@@ -1,0 +1,42 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;height:100%;background:#111}canvas{display:block}</style></head>
+<body><canvas id="c"></canvas>
+<script type="module">
+import { Renderer } from '../src/engine/Renderer.js';
+import { Camera, CameraRig } from '../src/engine/Camera.js';
+import { Node, Mesh, Glow, Decal } from '../src/engine/scene.js';
+import { MeshBuilder, roundedBox, plane, cylinder } from '../src/engine/geometry.js';
+import { MATS, PAL } from '../src/world/materials.js';
+import { CharacterView, randomLook } from '../src/world/models/character.js';
+import { makeDraft, makeBottle, makeFood, makeKeg } from '../src/world/models/props.js';
+import { BEERS } from '../src/data/beers.js';
+import { RNG } from '../src/core/rng.js';
+const canvas = document.getElementById('c');
+const r = new Renderer(canvas);
+r.setSize(innerWidth, innerHeight, 1);
+const cam = new Camera(30, innerWidth/innerHeight);
+const rig = new CameraRig(cam, canvas);
+const P=new URLSearchParams(location.search); const cx=+(P.get("x")||2), cd=+(P.get("d")||7), cp=+(P.get("p")||0.5), cy=+(P.get("y")||0); rig.goal.target=[cx,0,1]; rig.target=[cx,0,1]; rig.goal.distance=rig.distance=cd; rig.goal.pitch=rig.pitch=cp; rig.goal.yaw=rig.yaw=cy;
+const scene = new Node('scene');
+const fb = new MeshBuilder(); fb.add(plane(10,10), {color:0x9a6136});
+scene.add(new Mesh(fb.build(), MATS.vc));
+const rng = new RNG(4);
+const chars=[];
+for (let i=0;i<5;i++){ const c = new CharacterView(randomLook(rng, i==4?{topStyle:'apron',accessory:'towel'}:{})); c.root.position=[i*1.0,0,0]; scene.add(c.root); chars.push(c); }
+chars[1].setAction('drink'); chars[1].hold('R', makeDraft(BEERS[3]));
+chars[2].setAction('wave'); chars[3].mood='angry'; chars[3].setAction('angry');
+chars[4].carry=1; chars[4].hold('R', makeDraft(BEERS[0])); chars[4].hold('L', makeBottle(BEERS.find(b=>b.id==='coronado')));
+const t = new Node(); const tb = new MeshBuilder(); tb.add(roundedBox(0.8,0.06,0.8,0.03),{color:PAL.woodWarm,p:[0,0.75,0]}); tb.add(cylinder(0.05,0.05,0.75),{color:PAL.woodDark,p:[0,0.375,0]});
+const tm = new Mesh(tb.build(), MATS.vc); tm.position=[2,0,1.2]; scene.add(tm);
+const d = makeDraft(BEERS[0]); d.position=[1.8,0.78,1.2]; scene.add(d);
+const d2 = makeDraft(BEERS[3]); d2.position=[2.0,0.78,1.1]; d2.setLevel(0.5); scene.add(d2);
+const f = makeFood({id:'saucisson'}); f.position=[2.2,0.78,1.3]; scene.add(f);
+const k = makeKeg(); k.position=[3.5,0,1.5]; scene.add(k);
+const g = new Glow(0xffb35c, 0.6, 0.8); g.position=[2,2,1]; scene.add(g);
+const dec = new Decal(0x000000, 0.4, 0.3, 0); dec.position=[2,0.01,1.2]; scene.add(dec);
+r.env.points=[{pos:[2,2.2,1],color:[1,0.7,0.4],intensity:1.5,range:5}];
+r.env.shadowCenter=[2,0,1]; r.env.shadowRadius=5;
+let last=performance.now();
+function frame(now){ const dt=Math.min(0.05,(now-last)/1000); last=now; rig.update(dt); for(const c of chars) c.update(dt,false); r.render(scene,cam,dt); requestAnimationFrame(frame);} 
+requestAnimationFrame(frame);
+window.__ready=true;
+</script></body></html>

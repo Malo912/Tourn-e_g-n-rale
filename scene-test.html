@@ -1,0 +1,49 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;height:100%;background:#111}canvas{display:block}</style></head>
+<body><canvas id="c"></canvas>
+<script type="module">
+import { Renderer } from '../src/engine/Renderer.js';
+import { Camera, CameraRig } from '../src/engine/Camera.js';
+import { Node } from '../src/engine/scene.js';
+import { Room } from '../src/world/Room.js';
+import { buildCounter, buildBackBar, TapView, FridgeView, BoardView, SnackView, DishwasherView, GlassRackView, RegisterView, ChalkboardView, NeonNameView } from '../src/world/models/bar.js';
+import { buildItemModel, stoolModel } from '../src/world/models/furniture.js';
+import { CATALOG } from '../src/data/catalog.js';
+import { BEERS } from '../src/data/beers.js';
+import { buildProducts } from '../src/data/products.js';
+import { CharacterView, randomLook } from '../src/world/models/character.js';
+import { RNG } from '../src/core/rng.js';
+import { LAYOUT } from '../src/data/config.js';
+const P=new URLSearchParams(location.search);
+const canvas = document.getElementById('c');
+const r = new Renderer(canvas); r.setSize(innerWidth, innerHeight, 1);
+const cam = new Camera(30, innerWidth/innerHeight); const rig = new CameraRig(cam, canvas);
+if(P.get('yaw')) rig.goal.yaw=rig.yaw=+P.get('yaw'); if(P.get('d')) rig.goal.distance=rig.distance=+P.get('d'); if(P.get('p')) rig.goal.pitch=rig.pitch=+P.get('p');
+if(P.get('tx')) {rig.goal.target=[+P.get('tx'),0,+P.get('tz')]; rig.target=[...rig.goal.target];}
+const scene = new Node('scene');
+const room = new Room(scene); room.build(12,9);
+scene.add(buildCounter()); scene.add(buildBackBar());
+const prods = buildProducts();
+const taps=[]; LAYOUT.tapSlots.slice(0,3).forEach((x,i)=>{const t=new TapView(x); t.setBeer(BEERS[i===2?3:i]); scene.add(t.node); taps.push(t);});
+const fr = new FridgeView(); fr.setStock([{id:'coronado',count:10},{id:'kolaka',count:8}],24,prods); scene.add(fr.node);
+const bd=new BoardView(); bd.setStock(4); scene.add(bd.node);
+const sn=new SnackView(); sn.setStock(5,10,true); scene.add(sn.node);
+const dw=new DishwasherView(); dw.setDirty(7); scene.add(dw.node);
+const gr=new GlassRackView(); gr.setCount(10); scene.add(gr.node);
+const rg=new RegisterView(); scene.add(rg.node);
+const cb=new ChalkboardView(()=>[{name:'Kronfeld 1866',price:'5,00 €'},{name:'Heinberg',price:'6,00 €'},{name:'Dublinness',price:'7,00 €'}]); scene.add(cb.node);
+const nn=new NeonNameView(()=>'Chez Malo'); scene.add(nn.node);
+for (const x of LAYOUT.stoolSlots.slice(0,4)) { const s=stoolModel(); s.position=[x,0,LAYOUT.stoolZ]; scene.add(s); }
+const place=(id,x,z,rot=0)=>{const d=CATALOG.find(c=>c.id===id); const n=buildItemModel(d,{posterBeer:()=>BEERS[3]}); n.position=[x,0,z]; n.rotation[1]=rot; scene.add(n); return n;};
+place('table_bancale',2.5,5); place('table_bistrot',6,5); place('table_chene',3,7.5); place('banquette',9.5,7.2); place('plante',11.5,3.5); place('jukebox',11.4,2.5,-Math.PI/2); place('babyfoot',7,7.8);
+const wd=(id,wall,t,y)=>{const d=CATALOG.find(c=>c.id===id); const n=buildItemModel(d,{posterBeer:()=>BEERS[7]}); n.position=[t,d.y,0.02]; room.wallDecor[wall].add(n); return n;};
+wd('affiche','W',3,1.75); wd('tv','W',5.5); wd('guirlande','N',10.6); wd('flechettes','W',7.5);
+const rng=new RNG(8); const chars=[];
+const sitAt=(x,z,face,pose='sit')=>{const c=new CharacterView(randomLook(rng)); c.root.position=[x,0,z]; c.facing=c.targetFacing=face; c.pose=pose; c.seatY= pose==='stool'?0.74:0.48; scene.add(c.root); chars.push(c); return c;};
+sitAt(1.9,5,Math.PI/2).setAction('drink'); sitAt(3.1,5,-Math.PI/2).setAction('talk'); sitAt(LAYOUT.stoolSlots[1],LAYOUT.stoolZ,Math.PI,'stool').setAction('wave');
+const b=new CharacterView(randomLook(rng,{topStyle:'apron',accessory:'towel',hat:null})); b.root.position=[3.3,0,1.05]; scene.add(b.root); chars.push(b);
+const w=new CharacterView(randomLook(rng)); w.root.position=[10.5,0,9.6]; w.targetFacing=Math.PI; scene.add(w.root); chars.push(w);
+r.env.points=room.lamps; r.env.shadowCenter=[6,0,4.5]; r.env.shadowRadius=9;
+let last=performance.now();
+function frame(now){const dt=Math.min(0.05,(now-last)/1000); last=now; rig.update(dt); room.updateCutaway(cam.position); room.update(dt,now/1000); for(const c of chars) c.update(dt, c===w); r.render(scene,cam,dt); window.__calls=r.info.calls; requestAnimationFrame(frame);}
+requestAnimationFrame(frame);
+</script></body></html>
